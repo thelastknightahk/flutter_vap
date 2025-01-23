@@ -1,0 +1,36 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutter_vap (0.0.1):
+    - Flutter
+    - QGVAPlayer (= 1.0.7)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - QGVAPlayer (1.0.7)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - flutter_vap (from `.`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+
+SPEC REPOS:
+  trunk:
+    - QGVAPlayer
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  flutter_vap:
+    :path: "."
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+
+SPEC CHECKSUMS:
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  flutter_vap: 6c655a465a7e5599735a9a15747bf9662f8bf120
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  QGVAPlayer: 9499fc36d98d293191f9c9aa5b9cab81b02a0c8e
+
+PODFILE CHECKSUM: 1eb6181d1655f50e8d0b069f77cfd1fc0f489d94
+
+COCOAPODS: 1.15.2
