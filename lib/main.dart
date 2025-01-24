@@ -73,7 +73,7 @@ class _MyAppState extends State<MyApp> {
                     CupertinoButton(
                       color: Colors.purple,
                       child: Text("asset play"),
-                      onPressed: () => _playAsset("static/demo.mp4"),
+                      onPressed: () => _playAsset("assets/demo.mp4"),
                     ),
                     CupertinoButton(
                       color: Colors.purple,

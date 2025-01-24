@@ -4,7 +4,7 @@
 #import <Flutter/Flutter.h>
 
 @interface NativeVapView : NSObject <FlutterPlatformView, VAPWrapViewDelegate>
-
+@property (nonatomic, weak) NSObject<FlutterPluginRegistrar> *registrar;
 - (instancetype)initWithFrame:(CGRect)frame
                viewIdentifier:(int64_t)viewId
                     arguments:(id _Nullable)args
@@ -23,14 +23,18 @@
     }
     return self;
 }
-
+- (NSString *)lookupKeyForAsset:(NSString *)asset registrar:(NSObject<FlutterPluginRegistrar> *)registrar {
+    return [registrar lookupKeyForAsset:asset];
+}
 - (NSObject<FlutterPlatformView> *)createWithFrame:(CGRect)frame
                                     viewIdentifier:(int64_t)viewId
                                          arguments:(id _Nullable)args {
-    return [[NativeVapView alloc] initWithFrame:frame
+    NativeVapView *view = [[NativeVapView alloc] initWithFrame:frame
                                  viewIdentifier:viewId
                                       arguments:args
                                 binaryMessenger:_registrar.messenger];
+    view.registrar = _registrar;
+    return view;
 }
 
 @end
@@ -67,30 +71,6 @@
     }
     return self;
 }
-// - (instancetype)initWithFrame:(CGRect)frame
-//                viewIdentifier:(int64_t)viewId
-//                     arguments:(id _Nullable)args
-//               binaryMessenger:(NSObject<FlutterBinaryMessenger> *)messenger {
-//     self = [super init];
-//     if (self) {
-//         playStatus = NO;
-//         _view = [[UIView alloc] initWithFrame:frame];
-
-//         // Initialize MethodChannel
-//         NSString *methodChannelName = [NSString stringWithFormat:@"flutter_vap_controller_%lld", viewId];
-//         _methodChannel = [FlutterMethodChannel methodChannelWithName:methodChannelName binaryMessenger:messenger];
-//         [_methodChannel setMethodCallHandler:^(FlutterMethodCall *call, FlutterResult result) {
-//             [self handleMethodCall:call result:result];
-//         }];
-
-//         // Initialize EventChannel
-//         NSString *eventChannelName = [NSString stringWithFormat:@"flutter_vap_event_channel_%lld", viewId];
-//         _eventChannel = [FlutterEventChannel eventChannelWithName:eventChannelName binaryMessenger:messenger];
-//         __weak typeof(self) weakSelf = self;
-//         [_eventChannel setStreamHandler:self];
-//     }
-//     return self;
-// }
 
 #pragma mark - FlutterPlatformView
 
@@ -125,20 +105,18 @@
     } else if ([@"playAsset" isEqualToString:call.method]) {
         NSString *asset = call.arguments[@"asset"];
         if (asset) {
-            NSString *assetPath = [[NSBundle mainBundle] pathForResource:asset ofType:nil];
+            NSString *key = [self.registrar lookupKeyForAsset:asset];
+            NSString *assetPath = [[NSBundle mainBundle] pathForResource:key ofType:nil];
             if (assetPath) {
                 [self playByPath:assetPath withResult:result];
             } else {
-                result([FlutterError errorWithCode:@"ASSET_NOT_FOUND"
-                                           message:@"Asset not found"
-                                           details:nil]);
+                result([FlutterError errorWithCode:@"ASSET_NOT_FOUND" 
+                                        message:@"Asset not found" 
+                                        details:nil]);
             }
-        } else {
-            result([FlutterError errorWithCode:@"INVALID_ARGUMENT"
-                                       message:@"Asset is null"
-                                       details:nil]);
         }
-    } else if ([@"stop" isEqualToString:call.method]) {
+    } 
+    else if ([@"stop" isEqualToString:call.method]) {
         [self stopPlayback];
         result(nil);
     } else {
