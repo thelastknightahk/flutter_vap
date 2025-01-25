@@ -63,6 +63,7 @@ flutter:
   assets:
     - assets/bg.jpeg
     - assets/demo.mp4
+    - assets/dev_bg.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
