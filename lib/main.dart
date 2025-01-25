@@ -77,12 +77,7 @@ class _MyAppState extends State<MyApp> {
                           child: Text("File1 play"),
                           onPressed: () => _playFile(downloadPathList[0]),
                         ),
-                       SizedBox(height: 10,) ,
-                        CupertinoButton(
-                          color: Color(0xff6c63ff),
-                          child: Text("File2 play"),
-                          onPressed: () => _playFile(downloadPathList[1]),
-                        ),
+                      
                           SizedBox(height: 10,) ,
                         CupertinoButton(
                            color: Color(0xff6c63ff),
@@ -110,9 +105,7 @@ class _MyAppState extends State<MyApp> {
     await Dio().download(
         "https://res.cloudinary.com/dkmchpua1/video/upload/v1737623468/zta2wxsuokcskw0bhar7.mp4",
         downloadPathList[0]);
-    await Dio().download(
-        "https://res.cloudinary.com/dkmchpua1/video/upload/v1737624783/vcg9co6yyfqsadgety1n.mp4",
-        downloadPathList[1]);
+    
     setState(() {
       isDownload = true;
     });
