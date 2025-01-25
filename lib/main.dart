@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -14,6 +16,8 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -26,78 +30,70 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
      initDownloadPath();
-  }
-
+  } 
   Future<void> initDownloadPath() async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String rootPath = appDocDir.path;
     downloadPathList = ["$rootPath/vap_demo1.mp4", "$rootPath/vap_demo2.mp4"];
-    print("downloadPathList:$downloadPathList");
+    
+     
   }
 
   @override
   Widget build(BuildContext context) {
+    
     return OKToast(
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Container(
             width: double.infinity,
             height: double.infinity,
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 140, 41, 43),
-              image: DecorationImage(image: AssetImage("assets/bg.jpeg")),
+              color: Colors.white,
+              image: DecorationImage(image: AssetImage("assets/dev_bg.png"), fit: BoxFit.contain),
             ),
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CupertinoButton(
-                      color: Colors.purple,
-                      child: Text(
-                          "download video source${isDownload ? "(✅)" : ""}"),
-                      onPressed: _download,
+            child: SafeArea(
+              child: Stack(
+                alignment: Alignment.topLeft,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                          SizedBox(height: 20,) ,
+                        CupertinoButton(
+                          color: Color(0xff6c63ff),
+                          onPressed: _download,
+                          child: Text(
+                              "download video source${isDownload ? "(✅)" : ""}"),
+                        ),
+                        SizedBox(height: 10,) ,
+                        CupertinoButton(
+                           color: Color(0xff6c63ff),
+                          child: Text("File1 play"),
+                          onPressed: () => _playFile(downloadPathList[0]),
+                        ),
+                      
+                          SizedBox(height: 10,) ,
+                        CupertinoButton(
+                           color: Color(0xff6c63ff),
+                          child: Text("asset play"),
+                          onPressed: () => _playAsset("assets/demo.mp4"),
+                        ),
+                        
+                      ],
                     ),
-                    CupertinoButton(
-                      color: Colors.purple,
-                      child: Text("File1 play"),
-                      onPressed: () => _playFile(downloadPathList[0]),
-                    ),
-                    CupertinoButton(
-                      color: Colors.purple,
-                      child: Text("File2 play"),
-                      onPressed: () => _playFile(downloadPathList[1]),
-                    ),
-                    CupertinoButton(
-                      color: Colors.purple,
-                      child: Text("asset play"),
-                      onPressed: () => _playAsset("assets/demo.mp4"),
-                    ),
-                    CupertinoButton(
-                      color: Colors.purple,
-                      child: Text("stop play"),
-                      onPressed: () => VapController.stop(),
-                    ),
-                    CupertinoButton(
-                      color: Colors.purple,
-                      child: Text("queue play"),
-                      onPressed: _queuePlay,
-                    ),
-                    CupertinoButton(
-                      color: Colors.purple,
-                      child: Text("cancel queue play"),
-                      onPressed: _cancelQueuePlay,
-                    ),
-                  ],
-                ),
-                IgnorePointer(
-                  // VapView可以通过外层包Container(),设置宽高来限制弹出视频的宽高
-                  // VapView can set the width and height through the outer package Container() to limit the width and height of the pop-up video
-                  child: VapView(),
-                ),
-              ],
+                  ),
+                  IgnorePointer(
+                   
+                    child: VapView(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -109,18 +105,13 @@ class _MyAppState extends State<MyApp> {
     await Dio().download(
         "https://res.cloudinary.com/dkmchpua1/video/upload/v1737623468/zta2wxsuokcskw0bhar7.mp4",
         downloadPathList[0]);
-    await Dio().download(
-        "https://res.cloudinary.com/dkmchpua1/video/upload/v1737624783/vcg9co6yyfqsadgety1n.mp4",
-        downloadPathList[1]);
+    
     setState(() {
       isDownload = true;
     });
   }
 
-  Future<Map<dynamic, dynamic>?> _playFile(String path) async {
-    if (path == null) {
-      return null;
-    }
+  Future<Map<dynamic, dynamic>?> _playFile(String path) async { 
     var res = await VapController.playPath(path);
     if (res!["status"] == "failure") {
       showToast(res["errorMsg"]);
@@ -128,27 +119,12 @@ class _MyAppState extends State<MyApp> {
     return res;
   }
 
-  Future<Map<dynamic, dynamic>?> _playAsset(String asset) async {
-    if (asset == null) {
-      return null;
-    }
+  Future<Map<dynamic, dynamic>?> _playAsset(String asset) async { 
     var res = await VapController.playAsset(asset);
     if (res!["status"] == "failure") {
       showToast(res["errorMsg"]);
     }
     return res;
   }
-
-  _queuePlay() async {
-    // 模拟多个地方同时调用播放,使得队列执行播放。
-    // Simultaneously call playback in multiple places, making the queue perform playback.
-    QueueUtil.get("vapQueue")
-        ?.addTask(() => VapController.playPath(downloadPathList[0]));
-    QueueUtil.get("vapQueue")
-        ?.addTask(() => VapController.playPath(downloadPathList[1]));
-  }
-
-  _cancelQueuePlay() {
-    QueueUtil.get("vapQueue")?.cancelTask();
-  }
+ 
 }
