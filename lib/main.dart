@@ -25,23 +25,33 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   List<String> downloadPathList = [];
   bool isDownload = false;
-
+  late VapController _vapController;
   @override
   void initState() {
     super.initState();
-     initDownloadPath();
-  } 
+    _vapController = VapController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _vapController.init();
+    });
+
+    initDownloadPath();
+  }
+
+  @override
+  void dispose() {
+    _vapController.dispose(); // Dispose of the controller
+    super.dispose();
+  }
+
   Future<void> initDownloadPath() async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String rootPath = appDocDir.path;
     downloadPathList = ["$rootPath/vap_demo1.mp4", "$rootPath/vap_demo2.mp4"];
-    
-     
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return OKToast(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -51,7 +61,8 @@ class _MyAppState extends State<MyApp> {
             height: double.infinity,
             decoration: BoxDecoration(
               color: Colors.white,
-              image: DecorationImage(image: AssetImage("assets/dev_bg.png"), fit: BoxFit.contain),
+              image: DecorationImage(
+                  image: AssetImage("assets/dev_bg.png"), fit: BoxFit.contain),
             ),
             child: SafeArea(
               child: Stack(
@@ -64,33 +75,36 @@ class _MyAppState extends State<MyApp> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                          SizedBox(height: 20,) ,
+                        SizedBox(
+                          height: 20,
+                        ),
                         CupertinoButton(
                           color: Color(0xff6c63ff),
                           onPressed: _download,
                           child: Text(
                               "download video source${isDownload ? "(✅)" : ""}"),
                         ),
-                        SizedBox(height: 10,) ,
+                        SizedBox(
+                          height: 10,
+                        ),
                         CupertinoButton(
-                           color: Color(0xff6c63ff),
+                          color: Color(0xff6c63ff),
                           child: Text("File1 play"),
                           onPressed: () => _playFile(downloadPathList[0]),
                         ),
-                      
-                          SizedBox(height: 10,) ,
+                        SizedBox(
+                          height: 10,
+                        ),
                         CupertinoButton(
-                           color: Color(0xff6c63ff),
+                          color: Color(0xff6c63ff),
                           child: Text("asset play"),
                           onPressed: () => _playAsset("assets/demo.mp4"),
                         ),
-                        
                       ],
                     ),
                   ),
                   IgnorePointer(
-                   
-                    child: VapView(),
+                    child: VapView(controller: _vapController),
                   ),
                 ],
               ),
@@ -105,26 +119,25 @@ class _MyAppState extends State<MyApp> {
     await Dio().download(
         "https://res.cloudinary.com/dkmchpua1/video/upload/v1737623468/zta2wxsuokcskw0bhar7.mp4",
         downloadPathList[0]);
-    
+
     setState(() {
       isDownload = true;
     });
   }
 
-  Future<Map<dynamic, dynamic>?> _playFile(String path) async { 
-    var res = await VapController.playPath(path);
+  Future<Map<dynamic, dynamic>?> _playFile(String path) async {
+    var res = await _vapController.playPath(path);
     if (res!["status"] == "failure") {
       showToast(res["errorMsg"]);
     }
     return res;
   }
 
-  Future<Map<dynamic, dynamic>?> _playAsset(String asset) async { 
-    var res = await VapController.playAsset(asset);
+  Future<Map<dynamic, dynamic>?> _playAsset(String asset) async {
+    var res = await _vapController.playAsset(asset);
     if (res!["status"] == "failure") {
       showToast(res["errorMsg"]);
     }
     return res;
   }
- 
 }

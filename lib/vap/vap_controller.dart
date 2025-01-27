@@ -19,17 +19,24 @@ class VapController {
     print('Error receiving event: $error');
   }
 
-  /// return: play error:       {"status": "failure", "errorMsg": ""}
-  ///         play complete:    {"status": "complete"}
-  static Future<Map<dynamic, dynamic>?> playPath(String path) async {
+  /// Play a video from a file path
+  Future<Map<dynamic, dynamic>?> playPath(String path) async {
     return _methodChannel.invokeMethod('playPath', {"path": path});
   }
 
-  static Future<Map<dynamic, dynamic>?> playAsset(String asset) {
+  /// Play a video from an asset
+  Future<Map<dynamic, dynamic>?> playAsset(String asset) async { // Remove static
     return _methodChannel.invokeMethod('playAsset', {"asset": asset});
   }
 
-  static stop() {
-    _methodChannel.invokeMethod('stop');
+  /// Stop the current playback
+  Future<void> stop() async {
+    await _methodChannel.invokeMethod('stop');
+  }
+
+  /// Dispose the controller
+  Future<void> dispose() async {
+    await stop(); // Stop playback before disposing
+    // Add any additional cleanup logic here
   }
 }
