@@ -4,14 +4,15 @@ import 'package:flutter/services.dart';
 class VapController {
   static const MethodChannel _methodChannel = MethodChannel('flutter_vap_controller');
   static const EventChannel _eventChannel = EventChannel('flutter_vap_event_channel');
-
+   Function()? onVideoComplete;
   void init() {
     _eventChannel.receiveBroadcastStream().listen(_onEvent, onError: _onError);
   }
 
-  void _onEvent(dynamic event) {
-    // Handle the event
-    print('Received event: $event');
+ void _onEvent(dynamic event) {
+    if (event['status'] == 'complete' && onVideoComplete != null) {
+      onVideoComplete!();
+    }
   }
 
   void _onError(Object error) {

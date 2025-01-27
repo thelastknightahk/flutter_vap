@@ -1,5 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -25,6 +26,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   List<String> downloadPathList = [];
   bool isDownload = false;
+  bool isPlaying = false;
+  Queue<String> videoQueue = Queue<String>();
   late VapController _vapController;
   @override
   void initState() {
@@ -33,15 +36,10 @@ class _MyAppState extends State<MyApp> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _vapController.init();
+      _setupVideoListener();
     });
 
     initDownloadPath();
-  }
-
-  @override
-  void dispose() {
-    _vapController.dispose(); // Dispose of the controller
-    super.dispose();
   }
 
   Future<void> initDownloadPath() async {
@@ -100,6 +98,14 @@ class _MyAppState extends State<MyApp> {
                           child: Text("asset play"),
                           onPressed: () => _playAsset("assets/demo.mp4"),
                         ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        CupertinoButton(
+                          color: Color(0xff6c63ff),
+                          child: Text("asset play Two"),
+                          onPressed: () => _playAsset("assets/demo.mp4"),
+                        ),
                       ],
                     ),
                   ),
@@ -133,11 +139,41 @@ class _MyAppState extends State<MyApp> {
     return res;
   }
 
+  void _setupVideoListener() {
+    _vapController.onVideoComplete = () {
+      _playNextVideo();
+    };
+  }
+
+  void _playNextVideo() {
+    if (videoQueue.isNotEmpty) {
+      String nextVideo = videoQueue.removeFirst();
+      _vapController.playAsset(nextVideo);
+    } else {
+      isPlaying = false;
+    }
+  }
+
   Future<Map<dynamic, dynamic>?> _playAsset(String asset) async {
+    if (isPlaying) {
+      videoQueue.add(asset);
+      return null;
+    }
+
+    isPlaying = true;
     var res = await _vapController.playAsset(asset);
     if (res!["status"] == "failure") {
+      isPlaying = false;
       showToast(res["errorMsg"]);
     }
     return res;
+  }
+
+  @override
+  void dispose() {
+    videoQueue.clear();
+    isPlaying = false;
+    _vapController.dispose();
+    super.dispose();
   }
 }
