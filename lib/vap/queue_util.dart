@@ -5,7 +5,7 @@ import 'dart:async';
 class QueueUtil {
   /// 用map key存储多个QueueUtil单例,目的是隔离多个类型队列任务互不干扰
   /// Use map key to store multiple QueueUtil singletons, the purpose is to isolate multiple types of queue tasks without interfering with each other
-  static Map<String, QueueUtil> _instance = Map<String, QueueUtil>();
+  static final Map<String, QueueUtil> _instance = <String, QueueUtil>{};
 
   static QueueUtil? get(String key) {
     if (_instance[key] == null) {
@@ -18,28 +18,28 @@ class QueueUtil {
     /// 初始化代码
   }
 
-  List<_TaskInfo> _taskList = [];
+  List<TaskInfo> _taskList = [];
   bool _isTaskRunning = false;
   int _mId = 0;
   bool _isCancelQueue = false;
 
-  Future<_TaskInfo> addTask(Function doSomething) {
+  Future<TaskInfo> addTask(Function doSomething) {
     _isCancelQueue = false;
     _mId++;
-    _TaskInfo taskInfo = _TaskInfo(_mId, doSomething);
+    TaskInfo taskInfo = TaskInfo(_mId, doSomething);
 
     /// 创建future
-    Completer<_TaskInfo> taskCompleter = Completer<_TaskInfo>();
+    Completer<TaskInfo> taskCompleter = Completer<TaskInfo>();
 
     /// 创建当前任务stream
-    StreamController<_TaskInfo> streamController = new StreamController();
+    StreamController<TaskInfo> streamController = StreamController();
     taskInfo.controller = streamController;
 
     /// 添加到任务队列
     _taskList.add(taskInfo);
 
     /// 当前任务的stream添加监听
-    streamController.stream.listen((_TaskInfo completeTaskInfo) {
+    streamController.stream.listen((TaskInfo completeTaskInfo) {
       if (completeTaskInfo.id == taskInfo.id) {
         taskCompleter.complete(completeTaskInfo);
         streamController.close();
@@ -64,7 +64,7 @@ class QueueUtil {
     if (_taskList.isEmpty) return;
 
     /// 取任务
-    _TaskInfo taskInfo = _taskList[0];
+    TaskInfo taskInfo = _taskList[0];
     _isTaskRunning = true;
 
     /// 模拟执行任务
@@ -83,10 +83,10 @@ class QueueUtil {
   }
 }
 
-class _TaskInfo {
+class TaskInfo {
   int id; // 任务唯一标识
   Function? doSomething;
-  StreamController<_TaskInfo>? controller;
+  StreamController<TaskInfo>? controller;
 
-  _TaskInfo(this.id, this.doSomething, {this.controller});
+  TaskInfo(this.id, this.doSomething);
 }
