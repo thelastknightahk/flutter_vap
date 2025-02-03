@@ -5,12 +5,18 @@ class VapController {
   static const MethodChannel _methodChannel = MethodChannel('flutter_vap_controller');
   static const EventChannel _eventChannel = EventChannel('flutter_vap_event_channel');
    Function()? onVideoComplete;
-  void init() {
-    _eventChannel.receiveBroadcastStream().listen(_onEvent, onError: _onError);
+   void init() {
+    _eventChannel.receiveBroadcastStream().listen((event) {
+      print("Event received: $event"); // Add this log
+      _onEvent(event); 
+    }, onError: _onError);
   }
 
- void _onEvent(dynamic event) {
+  
+  void _onEvent(dynamic event) {
+    print("Processing event: $event");
     if (event['status'] == 'complete' && onVideoComplete != null) {
+      print("Calling onVideoComplete");
       onVideoComplete!();
     }
   }
@@ -33,6 +39,7 @@ class VapController {
   /// Stop the current playback
   Future<void> stop() async {
     await _methodChannel.invokeMethod('stop');
+   
   }
 
   /// Dispose the controller
