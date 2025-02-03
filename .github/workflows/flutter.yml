@@ -1,0 +1,49 @@
+name: Flutter Vap
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.3.4'  # Matching your SDK minimum version
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify assets
+        run: |
+          if [ ! -f "assets/bg.jpeg" ] || [ ! -f "assets/demo.mp4" ] || [ ! -f "assets/dev_bg.png" ]; then
+            echo "Error: Required assets are missing!"
+            exit 1
+          fi
+
+      - name: Analyze project source
+        run: flutter analyze
+        
+      - name: Check for any outdated dependencies
+        run: flutter pub outdated
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
