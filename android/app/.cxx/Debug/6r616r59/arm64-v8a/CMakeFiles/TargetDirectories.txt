@@ -1,0 +1,2 @@
+D:/Job/Turkey/testingpj/work_vap/flutter_vap/android/app/.cxx/Debug/6r616r59/arm64-v8a/CMakeFiles/edit_cache.dir
+D:/Job/Turkey/testingpj/work_vap/flutter_vap/android/app/.cxx/Debug/6r616r59/arm64-v8a/CMakeFiles/rebuild_cache.dir
