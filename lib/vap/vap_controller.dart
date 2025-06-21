@@ -7,23 +7,23 @@ class VapController {
    Function()? onVideoComplete;
    void init() {
     _eventChannel.receiveBroadcastStream().listen((event) {
-      print("Event received: $event"); // Add this log
+    
       _onEvent(event); 
     }, onError: _onError);
   }
 
   
   void _onEvent(dynamic event) {
-    print("Processing event: $event");
+    
     if (event['status'] == 'complete' && onVideoComplete != null) {
-      print("Calling onVideoComplete");
+     
       onVideoComplete!();
     }
   }
 
   void _onError(Object error) {
     // Handle the error
-    print('Error receiving event: $error');
+    
   }
 
   /// Play a video from a file path
